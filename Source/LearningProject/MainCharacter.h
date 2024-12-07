@@ -8,6 +8,7 @@
 
 //Forward declaration
 class UInputAction;
+class UCameraComponent;
 class UInputMappingContext;
 class UEnhancedInputLocalPlayerSubsystem;
 
@@ -27,11 +28,25 @@ protected:
 	UFUNCTION()
 	void Move(const FInputActionInstance& Instance);
 
+	UFUNCTION()
+	void RotateCamera(const FInputActionInstance& Instance);
+
+	UFUNCTION()
+	void PerformJump(const FInputActionInstance& Instance);
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
 	UInputMappingContext* PlayerMappingContext;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
 	TMap<FString, UInputAction*> InputActions;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
+	UCameraComponent* PlayerCamera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
+	float MouseSensitivity = 1;
+
+	APlayerController* PlayerController;
 
 	UEnhancedInputLocalPlayerSubsystem* PlayerInputSystem;
 
