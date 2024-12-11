@@ -46,6 +46,9 @@ protected:
 	UFUNCTION()
 	void PerformItemDrop(const FInputActionInstance& Instance);
 
+	UFUNCTION()
+	void ChangeActiveItem(const FInputActionInstance& Instance);
+
 	void TraceLine();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")

@@ -7,6 +7,11 @@
 
 void UInventory::AddItem(APickable* ItemToAdd)
 {
+	if (ItemToAdd == nullptr)
+	{
+		return;
+	}
+
 	FPickableData* NewItemData = ItemToAdd->GetItemData();
 
 	DataList.Add(NewItemData);

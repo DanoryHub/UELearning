@@ -133,6 +133,20 @@ void AMainCharacter::PerformItemDrop(const FInputActionInstance& Instance)
 	PlayerInventory->SpawnActiveItem(GetWorld(), SpawnLocation, SpawnRotation, ForceDirection, DropForceStrength);
 }
 
+void AMainCharacter::ChangeActiveItem(const FInputActionInstance& Instance)
+{
+	float AxisInput = Instance.GetValue().Get<float>();
+
+	if (AxisInput > 0)
+	{
+		PlayerInventory->ChangeActiveItemUp();
+	}
+	else
+	{
+		PlayerInventory->ChangeActiveItemDown();
+	}
+}
+
 void AMainCharacter::TraceLine()
 {
 	FHitResult OutHit;
@@ -184,6 +198,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	EnhancedInputComponent->BindAction(InputActions["IA_Grab"], ETriggerEvent::Triggered, this, &AMainCharacter::PerformGrab);
 	EnhancedInputComponent->BindAction(InputActions["IA_InventoryIntrospect"], ETriggerEvent::Triggered, this, &AMainCharacter::PerformIntrospect);
 	EnhancedInputComponent->BindAction(InputActions["IA_DropItem"], ETriggerEvent::Triggered, this, &AMainCharacter::PerformItemDrop);
+	EnhancedInputComponent->BindAction(InputActions["IA_ChangeActiveItem"], ETriggerEvent::Triggered, this, &AMainCharacter::ChangeActiveItem);
 }
 
 void AMainCharacter::IncreaseNearPickableCounter()
