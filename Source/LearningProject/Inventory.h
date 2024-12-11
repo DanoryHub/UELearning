@@ -27,6 +27,14 @@ public:
 
 	APickable* EquipActiveItem(UObject* PivotPoint);
 
+	APickable* SpawnActiveItem(UWorld* World, FVector SpawnPoint, FRotator SpawnRotation, FVector ForceDirection, float ForceStrength);
+
+	void DeleteItem(FString ItemID);
+
+	void ChangeActiveItemDown();
+
+	void ChangeActiveItemUp();
+
 private:
 
 	int32 ActiveItemID;

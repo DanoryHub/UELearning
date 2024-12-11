@@ -43,4 +43,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	FPickableData* GetItemData();
+
+	UFUNCTION(BlueprintCallable)
+	void SetPhysics(bool IsPhysicsEnabled);
+
+	UFUNCTION(BlueprintCallable)
+	void ApplyForce(FVector ForceDirection, float ForceStrength);
 };

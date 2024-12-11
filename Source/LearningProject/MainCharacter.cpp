@@ -4,6 +4,7 @@
 #include "MainCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
+#include "Components/ArrowComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -24,6 +25,11 @@ AMainCharacter::AMainCharacter()
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>("PlayerCamera");
 	PlayerCamera->SetupAttachment(RootComponent);
 
+	DropSpawnPoint = CreateDefaultSubobject<USceneComponent>("DropSpawnPoint");
+	DropSpawnPoint->SetupAttachment(RootComponent);
+
+	DropOrientation = CreateDefaultSubobject<UArrowComponent>("DropOrientation");
+	DropOrientation->SetupAttachment(DropSpawnPoint);
 }
 
 // Called when the game starts or when spawned
@@ -43,7 +49,6 @@ void AMainCharacter::BeginPlay()
 			PlayerInputSystem->AddMappingContext(PlayerMappingContext, 0);
 		}
 	}
-	
 }
 
 void AMainCharacter::Move(const FInputActionInstance& Instance)
@@ -119,6 +124,15 @@ void AMainCharacter::PerformIntrospect(const FInputActionInstance& Instance)
 	UE_LOG(LogTemp, Warning, TEXT("Active Item: %s"), *PlayerInventory->InspectActiveItem());
 }
 
+void AMainCharacter::PerformItemDrop(const FInputActionInstance& Instance)
+{
+	FVector SpawnLocation = DropSpawnPoint->GetComponentLocation();
+	FRotator SpawnRotation = DropSpawnPoint->GetComponentRotation();
+	FVector ForceDirection = DropOrientation->GetForwardVector();
+
+	PlayerInventory->SpawnActiveItem(GetWorld(), SpawnLocation, SpawnRotation, ForceDirection, DropForceStrength);
+}
+
 void AMainCharacter::TraceLine()
 {
 	FHitResult OutHit;
@@ -169,6 +183,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	EnhancedInputComponent->BindAction(InputActions["IA_Jump"], ETriggerEvent::Triggered, this, &AMainCharacter::PerformJump);
 	EnhancedInputComponent->BindAction(InputActions["IA_Grab"], ETriggerEvent::Triggered, this, &AMainCharacter::PerformGrab);
 	EnhancedInputComponent->BindAction(InputActions["IA_InventoryIntrospect"], ETriggerEvent::Triggered, this, &AMainCharacter::PerformIntrospect);
+	EnhancedInputComponent->BindAction(InputActions["IA_DropItem"], ETriggerEvent::Triggered, this, &AMainCharacter::PerformItemDrop);
 }
 
 void AMainCharacter::IncreaseNearPickableCounter()

@@ -10,6 +10,7 @@
 class APickable;
 class UInventory;
 class UInputAction;
+class UArrowComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UEnhancedInputLocalPlayerSubsystem;
@@ -42,6 +43,9 @@ protected:
 	UFUNCTION()
 	void PerformIntrospect(const FInputActionInstance& Instance);
 
+	UFUNCTION()
+	void PerformItemDrop(const FInputActionInstance& Instance);
+
 	void TraceLine();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
@@ -50,14 +54,23 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
 	TMap<FString, UInputAction*> InputActions;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Components")
 	UCameraComponent* PlayerCamera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
+	USceneComponent* DropSpawnPoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UArrowComponent* DropOrientation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
 	float MouseSensitivity = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="WorldInteraction")
 	float LookLength = 500.0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+	float DropForceStrength = 100.0;
 
 	int32 NearPickableCounter = 0;
 

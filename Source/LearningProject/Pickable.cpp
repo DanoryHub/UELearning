@@ -23,8 +23,6 @@ APickable::APickable()
 
 	// Setup on begin overlap event
 	VisibilityActivationSphere->OnComponentEndOverlap.AddDynamic(this, &APickable::OnSphereEndOverlap);
-
-	ItemData.ItemClass = APickable::GetClass();
 	
 }
 
@@ -66,5 +64,15 @@ void APickable::Tick(float DeltaTime)
 FPickableData* APickable::GetItemData()
 {
 	return &ItemData;
+}
+
+void APickable::SetPhysics(bool IsPhysicsEnabled)
+{
+	Mesh->SetSimulatePhysics(IsPhysicsEnabled);
+}
+
+void APickable::ApplyForce(FVector ForceDirection, float ForceStrength)
+{
+	Mesh->AddForce(ForceDirection * ForceStrength);
 }
 
