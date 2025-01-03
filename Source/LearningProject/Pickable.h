@@ -32,6 +32,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="TransferableData")
 	FPickableData ItemData;
 
+	bool AllowedLineTrace = true;
+
 	UFUNCTION()
 	void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -44,9 +46,16 @@ public:
 
 	FPickableData* GetItemData();
 
+	void ForbidLineTrace();
+
+	void AllowLineTrace();
+
 	UFUNCTION(BlueprintCallable)
 	void SetPhysics(bool IsPhysicsEnabled);
 
 	UFUNCTION(BlueprintCallable)
 	void ApplyForce(FVector ForceDirection, float ForceStrength);
+
+	UFUNCTION(BlueprintCallable)
+	void AttachToComponent(USceneComponent* ComponentToAttachTo);
 };

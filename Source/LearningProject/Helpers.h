@@ -19,4 +19,7 @@ struct FPickableData
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FString Name;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float HandleScale = 1.0;
 };

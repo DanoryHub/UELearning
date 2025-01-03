@@ -23,11 +23,15 @@ public:
 
 	TArray<FString> InspectItems();
 
-	FString InspectActiveItem();
+	APickable* InspectActiveItem(UWorld* World, FString PrevActiveItemId, USceneComponent* PivotPoint);
 
-	APickable* EquipActiveItem(UObject* PivotPoint);
+	APickable* EquipActiveItem(UWorld* World, USceneComponent* PivotPoint);
 
-	APickable* SpawnActiveItem(UWorld* World, FVector SpawnPoint, FRotator SpawnRotation, FVector ForceDirection, float ForceStrength);
+	APickable* DropActiveItem(UWorld* World, FVector SpawnPoint, FRotator SpawnRotation, FVector ForceDirection, float ForceStrength);
+
+	APickable* SpawnActiveItem(UWorld* World, bool NeedToDeleteFromInventory, FVector SpawnPoint, FRotator SpawnRotation, bool ModifyScaleFactor = true);
+
+	void ApplyForceToItem(APickable* ItemToApplyForce, FVector ForceDirection, float ForceStrength);
 
 	void DeleteItem(FString ItemID);
 
@@ -35,9 +39,17 @@ public:
 
 	void ChangeActiveItemUp();
 
+	FString GetActiveItemID();
+
+	int GetNumOfItemsInInventory();
+
+	void ClearActiveItem();
+
 private:
 
-	int32 ActiveItemID;
+	int ActiveItemID;
+
+	APickable* ActiveItem;
 
 	TArray<FPickableData*> DataList;
 };

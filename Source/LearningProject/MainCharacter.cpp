@@ -30,6 +30,9 @@ AMainCharacter::AMainCharacter()
 
 	DropOrientation = CreateDefaultSubobject<UArrowComponent>("DropOrientation");
 	DropOrientation->SetupAttachment(DropSpawnPoint);
+
+	HoldingPoint = CreateDefaultSubobject<USceneComponent>("HoldingPoint");
+	HoldingPoint->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -110,6 +113,15 @@ void AMainCharacter::PerformGrab(const FInputActionInstance& Instance)
 
 		ItemInSight = nullptr;
 	}
+
+	if (EquipedItem == nullptr || EquipedItem->GetItemData()->ID != PlayerInventory->GetActiveItemID())
+	{
+		APickable* NewActiveItem = PlayerInventory->InspectActiveItem(GetWorld(), "", HoldingPoint);
+		if (NewActiveItem != nullptr)
+		{
+			EquipedItem = NewActiveItem;
+		}
+	}
 }
 
 void AMainCharacter::PerformIntrospect(const FInputActionInstance& Instance)
@@ -120,8 +132,6 @@ void AMainCharacter::PerformIntrospect(const FInputActionInstance& Instance)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Item Number %d: %s"), i, *ItemsInInventory[i]);
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Active Item: %s"), *PlayerInventory->InspectActiveItem());
 }
 
 void AMainCharacter::PerformItemDrop(const FInputActionInstance& Instance)
@@ -130,7 +140,8 @@ void AMainCharacter::PerformItemDrop(const FInputActionInstance& Instance)
 	FRotator SpawnRotation = DropSpawnPoint->GetComponentRotation();
 	FVector ForceDirection = DropOrientation->GetForwardVector();
 
-	PlayerInventory->SpawnActiveItem(GetWorld(), SpawnLocation, SpawnRotation, ForceDirection, DropForceStrength);
+	PlayerInventory->DropActiveItem(GetWorld(), SpawnLocation, SpawnRotation, ForceDirection, DropForceStrength);
+	ChangeEquippedItem();
 }
 
 void AMainCharacter::ChangeActiveItem(const FInputActionInstance& Instance)
@@ -144,6 +155,27 @@ void AMainCharacter::ChangeActiveItem(const FInputActionInstance& Instance)
 	else
 	{
 		PlayerInventory->ChangeActiveItemDown();
+	}
+
+	ChangeEquippedItem();
+}
+
+void AMainCharacter::ChangeEquippedItem()
+{
+	FString PrevItemID = "";
+
+	bool EquippedDestroyed = false;
+	if (EquipedItem != nullptr)
+	{
+		PrevItemID = EquipedItem->GetItemData()->ID;
+		EquippedDestroyed = EquipedItem->Destroy();
+		PlayerInventory->ClearActiveItem();
+	}
+
+	APickable* NewActiveItem = PlayerInventory->InspectActiveItem(GetWorld(), PrevItemID, HoldingPoint);
+	if (NewActiveItem != nullptr && EquippedDestroyed)
+	{
+		EquipedItem = NewActiveItem;
 	}
 }
 

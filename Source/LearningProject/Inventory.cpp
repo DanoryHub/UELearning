@@ -31,58 +31,92 @@ TArray<FString> UInventory::InspectItems()
 	return ItemNames;
 }
 
-FString UInventory::InspectActiveItem()
+APickable* UInventory::InspectActiveItem(UWorld* World, FString PrevActiveItemId, USceneComponent* PivotPoint)
 {
-	if (DataList.Num() > 0)
+	if (DataList.Num() == 0 || ActiveItemID > DataList.Num() - 1 || ActiveItemID < 0)
 	{
-		return (TEXT("%s: %s"), DataList[ActiveItemID]->Name, DataList[ActiveItemID]->ID);
+		return nullptr;
 	}
 
-	return (FString)TEXT("No items in inventory now");
-}
+	if (PrevActiveItemId != DataList[ActiveItemID]->ID)
+	{
+		if (ActiveItem == nullptr)
+		{
+			APickable* NewItem = EquipActiveItem(World, PivotPoint);
+			ActiveItem = NewItem;
+			return NewItem;
+		}
+	}
 
-APickable* UInventory::EquipActiveItem(UObject* PivotPoint)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Active item: %s"), *DataList[ActiveItemID]->Name);
 	return nullptr;
 }
 
-APickable* UInventory::SpawnActiveItem(UWorld* World, FVector SpawnPoint, FRotator SpawnRotation, FVector ForceDirection, float ForceStrength)
+APickable* UInventory::EquipActiveItem(UWorld* World, USceneComponent* PivotPoint)
 {
-	if (DataList.Num() == 0)
+	APickable* SpawnedItem = SpawnActiveItem(World, false, PivotPoint->GetComponentLocation(), PivotPoint->GetComponentRotation());
+
+	if (SpawnedItem == nullptr)
+	{
+		return nullptr;
+	}
+
+	SpawnedItem->AttachToComponent(PivotPoint);
+
+	return SpawnedItem;
+}
+
+APickable* UInventory::DropActiveItem(UWorld* World, FVector SpawnPoint, FRotator SpawnRotation, FVector ForceDirection, float ForceStrength)
+{
+	APickable* SpawnedItem = SpawnActiveItem(World, true, SpawnPoint, SpawnRotation, false);
+	ApplyForceToItem(SpawnedItem, ForceDirection, ForceStrength);
+
+	return SpawnedItem;
+}
+
+APickable* UInventory::SpawnActiveItem(UWorld* World, bool NeedToDeleteFromInventory, FVector SpawnPoint, FRotator SpawnRotation, bool ModifyScaleFactor)
+{
+	if (DataList.Num() == 0 || ActiveItemID > DataList.Num() - 1)
 	{
 		return nullptr;
 	}
 
 	FPickableData* ItemToSpawn = DataList[ActiveItemID];
 	UClass* ItemClass;
-	
-	if (ItemToSpawn != nullptr)
-	{
-		ItemClass = ItemToSpawn->ItemClass;
-	}
-	else
+
+	if (ItemToSpawn == nullptr)
 	{
 		return nullptr;
 	}
 
-	if (World != nullptr)
+	ItemClass = ItemToSpawn->ItemClass;
+
+	if (World != nullptr && ItemClass != nullptr)
 	{
 		APickable* SpawnedItem = World->SpawnActor<APickable>(ItemClass, SpawnPoint, SpawnRotation);
 
-		if (SpawnedItem == nullptr)
+		if (ModifyScaleFactor)
 		{
-			return nullptr;
+			SpawnedItem->SetActorScale3D(FVector::One() * ItemToSpawn->HandleScale);
 		}
 
-		SpawnedItem->SetPhysics(true);
-		SpawnedItem->ApplyForce(ForceDirection, ForceStrength);
+		if (SpawnedItem != nullptr && NeedToDeleteFromInventory)
+		{
+			DeleteItem(DataList[ActiveItemID]->ID);
+		}
 
-		DeleteItem(DataList[ActiveItemID]->ID);
 		return SpawnedItem;
 	}
 
 	return nullptr;
+}
+
+void UInventory::ApplyForceToItem(APickable* ItemToApplyForce, FVector ForceDirection, float ForceStrength)
+{
+	if (ItemToApplyForce != nullptr)
+	{
+		ItemToApplyForce->SetPhysics(true);
+		ItemToApplyForce->ApplyForce(ForceDirection, ForceStrength);
+	}
 }
 
 void UInventory::DeleteItem(FString ItemID)
@@ -118,7 +152,7 @@ void UInventory::ChangeActiveItemDown()
 	}
 	else
 	{
-		ActiveItemID--;
+		ActiveItemID = ActiveItemID - 1;
 	}
 }
 
@@ -135,6 +169,25 @@ void UInventory::ChangeActiveItemUp()
 	}
 	else
 	{
-		ActiveItemID++;
+		ActiveItemID = ActiveItemID + 1;
 	}
+}
+
+FString UInventory::GetActiveItemID()
+{
+	if (DataList.Num() == 0 || ActiveItemID > DataList.Num() - 1)
+	{
+		return "";
+	}
+	return DataList[ActiveItemID]->ID;
+}
+
+int32 UInventory::GetNumOfItemsInInventory()
+{
+	return DataList.Num();
+}
+
+void UInventory::ClearActiveItem()
+{
+	ActiveItem = nullptr;
 }

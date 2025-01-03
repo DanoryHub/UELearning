@@ -49,6 +49,8 @@ protected:
 	UFUNCTION()
 	void ChangeActiveItem(const FInputActionInstance& Instance);
 
+	void ChangeEquippedItem();
+
 	void TraceLine();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Input")
@@ -65,6 +67,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	UArrowComponent* DropOrientation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	USceneComponent* HoldingPoint;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Input")
 	float MouseSensitivity = 1;
@@ -84,6 +89,8 @@ protected:
 	UEnhancedInputLocalPlayerSubsystem* PlayerInputSystem;
 
 	APickable* ItemInSight;
+
+	APickable* EquipedItem;
 
 public:	
 	// Called every frame

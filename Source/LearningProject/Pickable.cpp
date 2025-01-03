@@ -36,6 +36,11 @@ void APickable::BeginPlay()
 
 void APickable::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!AllowedLineTrace)
+	{
+		return;
+	}
+
 	AMainCharacter* Character = Cast<AMainCharacter>(OtherActor);
 
 	if (Character != nullptr)
@@ -46,6 +51,11 @@ void APickable::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor
 
 void APickable::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if (!AllowedLineTrace)
+	{
+		return;
+	}
+
 	AMainCharacter* Character = Cast<AMainCharacter>(OtherActor);
 
 	if (Character != nullptr)
@@ -69,6 +79,21 @@ FPickableData* APickable::GetItemData()
 void APickable::SetPhysics(bool IsPhysicsEnabled)
 {
 	Mesh->SetSimulatePhysics(IsPhysicsEnabled);
+}
+
+void APickable::ForbidLineTrace()
+{
+	AllowedLineTrace = false;
+}
+
+void APickable::AllowLineTrace()
+{
+	AllowedLineTrace = true;
+}
+
+void APickable::AttachToComponent(USceneComponent* ComponentToAttachTo)
+{
+	Mesh->AttachToComponent(ComponentToAttachTo, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 }
 
 void APickable::ApplyForce(FVector ForceDirection, float ForceStrength)
