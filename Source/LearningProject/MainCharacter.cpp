@@ -114,7 +114,7 @@ void AMainCharacter::PerformGrab(const FInputActionInstance& Instance)
 		ItemInSight = nullptr;
 	}
 
-	if (EquipedItem == nullptr || EquipedItem->GetItemData()->ID != PlayerInventory->GetActiveItemID())
+	if (EquipedItem == nullptr) // || EquipedItem->GetItemData()->ID != PlayerInventory->GetActiveItemID())
 	{
 		APickable* NewActiveItem = PlayerInventory->InspectActiveItem(GetWorld(), "", HoldingPoint);
 		if (NewActiveItem != nullptr)
@@ -176,6 +176,10 @@ void AMainCharacter::ChangeEquippedItem()
 	if (NewActiveItem != nullptr && EquippedDestroyed)
 	{
 		EquipedItem = NewActiveItem;
+	}
+	else
+	{
+		EquipedItem = nullptr;
 	}
 }
 

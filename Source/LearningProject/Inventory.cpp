@@ -38,11 +38,17 @@ APickable* UInventory::InspectActiveItem(UWorld* World, FString PrevActiveItemId
 		return nullptr;
 	}
 
+	FPickableData* ItemToSpawn = DataList[ActiveItemID];
+	UClass* ItemClass = ItemToSpawn->ItemClass;
+
+	APickable* SpawnedItem = SpawnActiveItem(World, ItemClass, PivotPoint->GetComponentLocation(), PivotPoint->GetComponentRotation());
+
 	if (PrevActiveItemId != DataList[ActiveItemID]->ID)
 	{
-		if (ActiveItem == nullptr)
+		if (ActiveItem == nullptr && SpawnedItem != nullptr)
 		{
-			APickable* NewItem = EquipActiveItem(World, PivotPoint);
+			APickable* NewItem = EquipActiveItem(World, PivotPoint, SpawnedItem);
+			SpawnedItem->SetActorScale3D(FVector::One() * ItemToSpawn->HandleScale);
 			ActiveItem = NewItem;
 			return NewItem;
 		}
@@ -51,15 +57,12 @@ APickable* UInventory::InspectActiveItem(UWorld* World, FString PrevActiveItemId
 	return nullptr;
 }
 
-APickable* UInventory::EquipActiveItem(UWorld* World, USceneComponent* PivotPoint)
+APickable* UInventory::EquipActiveItem(UWorld* World, USceneComponent* PivotPoint, APickable* SpawnedItem)
 {
-	APickable* SpawnedItem = SpawnActiveItem(World, false, PivotPoint->GetComponentLocation(), PivotPoint->GetComponentRotation());
-
 	if (SpawnedItem == nullptr)
 	{
 		return nullptr;
 	}
-
 	SpawnedItem->AttachToComponent(PivotPoint);
 
 	return SpawnedItem;
@@ -67,13 +70,37 @@ APickable* UInventory::EquipActiveItem(UWorld* World, USceneComponent* PivotPoin
 
 APickable* UInventory::DropActiveItem(UWorld* World, FVector SpawnPoint, FRotator SpawnRotation, FVector ForceDirection, float ForceStrength)
 {
-	APickable* SpawnedItem = SpawnActiveItem(World, true, SpawnPoint, SpawnRotation, false);
-	ApplyForceToItem(SpawnedItem, ForceDirection, ForceStrength);
+	UClass* ItemClass = GetActiveItemClass();
 
+	APickable* SpawnedItem = SpawnActiveItem(World, ItemClass, SpawnPoint, SpawnRotation);
+
+	if (SpawnedItem == nullptr)
+	{
+		return nullptr;
+	}
+
+	ApplyForceToItem(SpawnedItem, ForceDirection, ForceStrength);
+	DeleteItem(DataList[ActiveItemID]->ID);
 	return SpawnedItem;
 }
 
-APickable* UInventory::SpawnActiveItem(UWorld* World, bool NeedToDeleteFromInventory, FVector SpawnPoint, FRotator SpawnRotation, bool ModifyScaleFactor)
+APickable* UInventory::SpawnActiveItem(UWorld* World, UClass* ItemClass, FVector SpawnPoint, FRotator SpawnRotation)
+{
+	if (DataList.Num() == 0 || ActiveItemID > DataList.Num() - 1)
+	{
+		return nullptr;
+	}
+
+	if (World != nullptr && ItemClass != nullptr)
+	{
+		APickable* SpawnedItem = World->SpawnActor<APickable>(ItemClass, SpawnPoint, SpawnRotation);
+		return SpawnedItem;
+	}
+
+	return nullptr;
+}
+
+UClass* UInventory::GetActiveItemClass()
 {
 	if (DataList.Num() == 0 || ActiveItemID > DataList.Num() - 1)
 	{
@@ -81,30 +108,10 @@ APickable* UInventory::SpawnActiveItem(UWorld* World, bool NeedToDeleteFromInven
 	}
 
 	FPickableData* ItemToSpawn = DataList[ActiveItemID];
-	UClass* ItemClass;
-
-	if (ItemToSpawn == nullptr)
+	if (ItemToSpawn != nullptr)
 	{
-		return nullptr;
-	}
-
-	ItemClass = ItemToSpawn->ItemClass;
-
-	if (World != nullptr && ItemClass != nullptr)
-	{
-		APickable* SpawnedItem = World->SpawnActor<APickable>(ItemClass, SpawnPoint, SpawnRotation);
-
-		if (ModifyScaleFactor)
-		{
-			SpawnedItem->SetActorScale3D(FVector::One() * ItemToSpawn->HandleScale);
-		}
-
-		if (SpawnedItem != nullptr && NeedToDeleteFromInventory)
-		{
-			DeleteItem(DataList[ActiveItemID]->ID);
-		}
-
-		return SpawnedItem;
+		UClass* ItemClass = ItemToSpawn->ItemClass;
+		return ItemClass;
 	}
 
 	return nullptr;

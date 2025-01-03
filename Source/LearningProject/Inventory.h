@@ -25,11 +25,13 @@ public:
 
 	APickable* InspectActiveItem(UWorld* World, FString PrevActiveItemId, USceneComponent* PivotPoint);
 
-	APickable* EquipActiveItem(UWorld* World, USceneComponent* PivotPoint);
+	APickable* EquipActiveItem(UWorld* World, USceneComponent* PivotPoint, APickable* SpawnedItem);
 
 	APickable* DropActiveItem(UWorld* World, FVector SpawnPoint, FRotator SpawnRotation, FVector ForceDirection, float ForceStrength);
 
-	APickable* SpawnActiveItem(UWorld* World, bool NeedToDeleteFromInventory, FVector SpawnPoint, FRotator SpawnRotation, bool ModifyScaleFactor = true);
+	APickable* SpawnActiveItem(UWorld* World, UClass* ItemClass, FVector SpawnPoint, FRotator SpawnRotation);
+
+	UClass* GetActiveItemClass();
 
 	void ApplyForceToItem(APickable* ItemToApplyForce, FVector ForceDirection, float ForceStrength);
 
