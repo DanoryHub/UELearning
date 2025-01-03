@@ -15,41 +15,41 @@ class LEARNINGPROJECT_API UInventory : public UObject
 {
 	GENERATED_BODY()
 
-	UInventory() {};
-
 public:
 
-	void AddItem(APickable* ItemToAdd);
+	UInventory() {};
 
 	TArray<FString> InspectItems();
 
 	APickable* InspectActiveItem(UWorld* World, FString PrevActiveItemId, USceneComponent* PivotPoint);
 
-	APickable* EquipActiveItem(UWorld* World, USceneComponent* PivotPoint, APickable* SpawnedItem);
-
 	APickable* DropActiveItem(UWorld* World, FVector SpawnPoint, FRotator SpawnRotation, FVector ForceDirection, float ForceStrength);
 
-	APickable* SpawnActiveItem(UWorld* World, UClass* ItemClass, FVector SpawnPoint, FRotator SpawnRotation);
+	FString GetActiveItemID();
 
-	UClass* GetActiveItemClass();
-
-	void ApplyForceToItem(APickable* ItemToApplyForce, FVector ForceDirection, float ForceStrength);
-
-	void DeleteItem(FString ItemID);
+	void AddItem(APickable* ItemToAdd);
 
 	void ChangeActiveItemDown();
 
 	void ChangeActiveItemUp();
 
-	FString GetActiveItemID();
-
-	int GetNumOfItemsInInventory();
-
 	void ClearActiveItem();
 
 private:
 
+	APickable* SpawnActiveItem(UWorld* World, UClass* ItemClass, FVector SpawnPoint, FRotator SpawnRotation);
+
+	APickable* EquipActiveItem(UWorld* World, USceneComponent* PivotPoint, APickable* SpawnedItem);
+
+	UClass* GetActiveItemClass();
+
+	int GetNumOfItemsInInventory();
+
 	int ActiveItemID;
+
+	void ApplyForceToItem(APickable* ItemToApplyForce, FVector ForceDirection, float ForceStrength);
+
+	void DeleteItem(FString ItemID);
 
 	APickable* ActiveItem;
 

@@ -39,6 +39,11 @@ APickable* UInventory::InspectActiveItem(UWorld* World, FString PrevActiveItemId
 	}
 
 	FPickableData* ItemToSpawn = DataList[ActiveItemID];
+	if (ItemToSpawn->ID.IsEmpty())
+	{
+		return nullptr;
+	}
+
 	UClass* ItemClass = ItemToSpawn->ItemClass;
 
 	APickable* SpawnedItem = SpawnActiveItem(World, ItemClass, PivotPoint->GetComponentLocation(), PivotPoint->GetComponentRotation());
